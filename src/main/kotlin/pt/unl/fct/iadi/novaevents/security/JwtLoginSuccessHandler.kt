@@ -45,7 +45,13 @@ class JwtLoginSuccessHandler(
         val finalRedirect = if (redirectUri.startsWith("http://") || redirectUri.startsWith("https://")) {
             redirectUri
         } else {
-            "${request.scheme}://${request.serverName}:${request.serverPort}${request.contextPath}$redirectUri"
+            val isDefaultPort =
+                (request.scheme == "http" && request.serverPort == 80) ||
+                        (request.scheme == "https" && request.serverPort == 443)
+
+            val portPart = if (isDefaultPort) "" else ":${request.serverPort}"
+
+            "${request.scheme}://${request.serverName}$portPart${request.contextPath}$redirectUri"
         }
 
         response.status = HttpServletResponse.SC_FOUND
