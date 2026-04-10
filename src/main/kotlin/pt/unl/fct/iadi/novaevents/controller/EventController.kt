@@ -21,9 +21,15 @@ class EventController(val eventService: EventService, val clubService: ClubServi
         @RequestParam(required = false) clubId: Long?,
         model: Model
     ): String {
-        val eventTypes = eventService.getAllTypes()
-        val resolvedTypeId = typeId ?: type?.let { typeName ->
-            eventTypes.find { t -> t.name == typeName }?.id
+        var eventTypes: List<pt.unl.fct.iadi.novaevents.model.EventType>? = null
+
+        val resolvedTypeId = when {
+            typeId != null -> typeId
+            type != null -> {
+                eventTypes = eventService.getAllTypes()
+                eventTypes!!.find { t -> t.name == type }?.id
+            }
+            else -> null
         }
 
         val events = eventService.getFiltered(clubId, resolvedTypeId)
@@ -33,6 +39,15 @@ class EventController(val eventService: EventService, val clubService: ClubServi
             .distinctBy { it.id }
 
         val clubMap = clubs.associate { it.id to it.name }
+
+        if (eventTypes == null) {
+            eventTypes =
+                if (clubId == null && typeId == null && type == null) {
+                    events.mapNotNull { it.type }.distinctBy { it.id }
+                } else {
+                    eventService.getAllTypes()
+                }
+        }
 
         model.addAttribute("events", events)
         model.addAttribute("clubs", clubs)
