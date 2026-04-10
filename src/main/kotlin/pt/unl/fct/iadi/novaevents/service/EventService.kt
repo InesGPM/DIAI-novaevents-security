@@ -63,11 +63,19 @@ class EventService (val clubRepository: ClubRepository, val eventRepository: Eve
     fun getFiltered(clubId: Long?, typeId: Long?): List<Event> {
         val club = clubId?.let { clubRepository.findById(it).orElse(null) }
         val type = typeId?.let { eventTypeRepository.findById(it).orElse(null) }
+
         return when {
-            club != null && type != null -> eventRepository.findByClubAndTypeWithFetch(club, type)
-            club != null -> eventRepository.findByClubWithType(club)
-            type != null -> eventRepository.findByTypeWithClub(type)
-            else -> eventRepository.findAllWithClubAndType()
+            club != null && type != null ->
+                eventRepository.findByClubAndTypeWithFetch(club, type)
+
+            club != null ->
+                eventRepository.findByClubWithType(club)
+
+            type != null ->
+                eventRepository.findByTypeWithClub(type)
+
+            else ->
+                eventRepository.findAllWithClubAndType()
         }
     }
 

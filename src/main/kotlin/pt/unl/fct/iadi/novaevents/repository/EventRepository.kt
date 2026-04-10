@@ -22,4 +22,8 @@ interface EventRepository : JpaRepository<Event, Long> {
 
     @Query("SELECT e FROM Event e JOIN FETCH e.club JOIN FETCH e.type WHERE e.club = :club AND e.type = :type")
     fun findByClubAndTypeWithFetch(club: Club, type: EventType): List<Event>
+
+    fun findByClubId(clubId: Long): List<Event>
+    fun findByTypeId(typeId: Long): List<Event>
+    fun findByClubIdAndTypeId(clubId: Long, typeId: Long): List<Event>
 }

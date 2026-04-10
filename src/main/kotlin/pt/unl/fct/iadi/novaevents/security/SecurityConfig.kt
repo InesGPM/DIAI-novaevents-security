@@ -39,9 +39,7 @@ open class SecurityConfig(
                     .requestMatchers("/clubs", "/clubs/*").permitAll()
                     .requestMatchers("/events", "/events/*").permitAll()
 
-
-                    .requestMatchers(HttpMethod.GET, "/clubs/*/events/*").permitAll()
-
+                    // regras específicas (protegidas)
                     .requestMatchers(HttpMethod.GET, "/clubs/*/events/new").authenticated()
                     .requestMatchers(HttpMethod.POST, "/clubs/*/events").authenticated()
 
@@ -51,6 +49,10 @@ open class SecurityConfig(
                     .requestMatchers(HttpMethod.GET, "/clubs/*/events/*/delete").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/clubs/*/events/*").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/clubs/*/events/*").hasRole("ADMIN")
+
+                    // detalhe público
+                    .requestMatchers(HttpMethod.GET, "/clubs/*/events/*").permitAll()
+
                     .anyRequest().authenticated()
             }
             .formLogin {
