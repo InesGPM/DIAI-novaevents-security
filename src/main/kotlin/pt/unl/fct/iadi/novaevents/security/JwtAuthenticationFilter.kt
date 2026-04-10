@@ -22,19 +22,23 @@ class JwtAuthenticationFilter(
     ) {
         val token = request.cookies?.find { it.name == "jwt" }?.value
 
-        if (token != null && jwtService.isValid(token)) {
+        if (token != null &&
+            jwtService.isValid(token) &&
+            SecurityContextHolder.getContext().authentication == null
+        ) {
             try {
                 val username = jwtService.extractUsername(token)
                 val roles = jwtService.extractRoles(token)
-                val authorities = roles.map { SimpleGrantedAuthority(it) }
+                val authorities = roles.map {
+                    SimpleGrantedAuthority(
+                        if (it.startsWith("ROLE_")) it else "ROLE_$it"
+                    )
+                }
 
                 val auth = UsernamePasswordAuthenticationToken(username, null, authorities)
-
-                // Coloca a autenticação no contexto
                 SecurityContextHolder.getContext().authentication = auth
 
             } catch (e: Exception) {
-                // Token inválido ou expirado → limpar contexto
                 SecurityContextHolder.clearContext()
             }
         }

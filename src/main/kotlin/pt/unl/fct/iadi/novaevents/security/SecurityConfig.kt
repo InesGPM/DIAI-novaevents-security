@@ -11,12 +11,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository
 import pt.unl.fct.iadi.novaevents.security.JwtAuthenticationFilter
 import pt.unl.fct.iadi.novaevents.security.JwtLoginSuccessHandler
+import pt.unl.fct.iadi.novaevents.security.RedirectCookieAuthenticationEntryPoint
 
 @Configuration
 @EnableMethodSecurity
 open class SecurityConfig(
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
-    private val jwtLoginSuccessHandler: JwtLoginSuccessHandler
+    private val jwtLoginSuccessHandler: JwtLoginSuccessHandler,
+    private val redirectCookieAuthenticationEntryPoint: RedirectCookieAuthenticationEntryPoint
 ) {
 
     @Bean
@@ -28,14 +30,19 @@ open class SecurityConfig(
             .sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
+            .exceptionHandling {
+                it.authenticationEntryPoint(redirectCookieAuthenticationEntryPoint)
+            }
             .authorizeHttpRequests {
                 it
                     .requestMatchers("/", "/login", "/login/**").permitAll()   // <- importante
                     .requestMatchers("/clubs", "/clubs/*").permitAll()
                     .requestMatchers("/events", "/events/*").permitAll()
                     .requestMatchers("/clubs/*/events/new").hasAnyRole("EDITOR", "ADMIN")
-                    .requestMatchers("/clubs/*/events/*/edit").hasAnyRole("EDITOR", "ADMIN")
-                    .requestMatchers("/clubs/*/events/*/delete").hasRole("ADMIN")
+                    .requestMatchers("/clubs/*/events/new").hasAnyRole("EDITOR", "ADMIN")
+                    .requestMatchers("/clubs/*/events/*/edit").authenticated()
+                    .requestMatchers("/clubs/*/events/*/delete").authenticated()
+                    .requestMatchers("/clubs/*/events/*").authenticated()
                     .anyRequest().authenticated()
             }
             .formLogin {

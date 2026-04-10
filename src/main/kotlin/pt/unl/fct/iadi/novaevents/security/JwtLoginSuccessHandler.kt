@@ -32,8 +32,17 @@ class JwtLoginSuccessHandler(
 
         response.addCookie(cookie)
 
-        // Redirect explícito - resolve muitos problemas de loop
-        response.status = HttpServletResponse.SC_FOUND   // 302
-        response.setHeader("Location", "/events")
+        val redirectUri = request.cookies
+            ?.find { it.name == "REDIRECT_URI" }
+            ?.value ?: "/events"
+
+        val clearRedirectCookie = Cookie("REDIRECT_URI", "").apply {
+            path = "/"
+            maxAge = 0
+        }
+        response.addCookie(clearRedirectCookie)
+
+        response.status = HttpServletResponse.SC_FOUND
+        response.setHeader("Location", redirectUri)
     }
 }
