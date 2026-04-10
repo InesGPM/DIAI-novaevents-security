@@ -12,7 +12,7 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository
 import pt.unl.fct.iadi.novaevents.security.JwtAuthenticationFilter
 import pt.unl.fct.iadi.novaevents.security.JwtLoginSuccessHandler
 import pt.unl.fct.iadi.novaevents.security.RedirectCookieAuthenticationEntryPoint
-
+import org.springframework.http.HttpMethod
 @Configuration
 @EnableMethodSecurity
 open class SecurityConfig(
@@ -35,14 +35,22 @@ open class SecurityConfig(
             }
             .authorizeHttpRequests {
                 it
-                    .requestMatchers("/", "/login", "/login/**").permitAll()   // <- importante
+                    .requestMatchers("/", "/login", "/login/**").permitAll()
                     .requestMatchers("/clubs", "/clubs/*").permitAll()
                     .requestMatchers("/events", "/events/*").permitAll()
-                    .requestMatchers("/clubs/*/events/new").hasAnyRole("EDITOR", "ADMIN")
-                    .requestMatchers("/clubs/*/events/new").hasAnyRole("EDITOR", "ADMIN")
-                    .requestMatchers("/clubs/*/events/*/edit").authenticated()
-                    .requestMatchers("/clubs/*/events/*/delete").authenticated()
-                    .requestMatchers("/clubs/*/events/*").authenticated()
+
+                    // detalhe de evento é público
+                    .requestMatchers(HttpMethod.GET, "/clubs/*/events/*").permitAll()
+
+                    // criar/editar/apagar exige autenticação
+                    .requestMatchers(HttpMethod.GET, "/clubs/*/events/new").authenticated()
+                    .requestMatchers(HttpMethod.POST, "/clubs/*/events").authenticated()
+                    .requestMatchers(HttpMethod.GET, "/clubs/*/events/*/edit").authenticated()
+                    .requestMatchers(HttpMethod.PUT, "/clubs/*/events/*").authenticated()
+                    .requestMatchers(HttpMethod.POST, "/clubs/*/events/*").authenticated()
+                    .requestMatchers(HttpMethod.GET, "/clubs/*/events/*/delete").authenticated()
+                    .requestMatchers(HttpMethod.DELETE, "/clubs/*/events/*").authenticated()
+
                     .anyRequest().authenticated()
             }
             .formLogin {

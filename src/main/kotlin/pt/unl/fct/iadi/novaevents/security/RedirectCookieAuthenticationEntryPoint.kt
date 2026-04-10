@@ -23,6 +23,7 @@ class RedirectCookieAuthenticationEntryPoint : AuthenticationEntryPoint {
         }
 
         response.addCookie(cookie)
-        response.sendRedirect("/login")
+        val loginUrl = "${request.scheme}://${request.serverName}:${request.serverPort}${request.contextPath}/login"
+        response.sendRedirect(loginUrl)
     }
 }
