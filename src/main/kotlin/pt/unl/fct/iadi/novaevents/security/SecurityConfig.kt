@@ -39,18 +39,18 @@ open class SecurityConfig(
                     .requestMatchers("/clubs", "/clubs/*").permitAll()
                     .requestMatchers("/events", "/events/*").permitAll()
 
-                    // detalhe de evento é público
+
                     .requestMatchers(HttpMethod.GET, "/clubs/*/events/*").permitAll()
 
-                    // criar/editar/apagar exige autenticação
                     .requestMatchers(HttpMethod.GET, "/clubs/*/events/new").authenticated()
                     .requestMatchers(HttpMethod.POST, "/clubs/*/events").authenticated()
+
                     .requestMatchers(HttpMethod.GET, "/clubs/*/events/*/edit").authenticated()
                     .requestMatchers(HttpMethod.PUT, "/clubs/*/events/*").authenticated()
-                    .requestMatchers(HttpMethod.POST, "/clubs/*/events/*").authenticated()
-                    .requestMatchers(HttpMethod.GET, "/clubs/*/events/*/delete").authenticated()
-                    .requestMatchers(HttpMethod.DELETE, "/clubs/*/events/*").authenticated()
 
+                    .requestMatchers(HttpMethod.GET, "/clubs/*/events/*/delete").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/clubs/*/events/*").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/clubs/*/events/*").hasRole("ADMIN")
                     .anyRequest().authenticated()
             }
             .formLogin {
