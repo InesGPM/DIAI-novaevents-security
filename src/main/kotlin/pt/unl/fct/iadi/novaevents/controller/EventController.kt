@@ -26,13 +26,11 @@ class EventController(val eventService: EventService, val clubService: ClubServi
             eventTypes.find { t -> t.name == typeName }?.id
         }
 
-        val clubs = clubService.getAll()
         val events = eventService.getFiltered(clubId, resolvedTypeId)
 
         model.addAttribute("events", events)
-        model.addAttribute("clubs", clubs)
         model.addAttribute("eventTypes", eventTypes)
-        model.addAttribute("clubMap", clubs.associate { it.id to it.name })
+
         return "events/list"
     }
 
