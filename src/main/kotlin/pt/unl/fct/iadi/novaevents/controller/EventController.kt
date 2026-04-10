@@ -21,12 +21,14 @@ class EventController(val eventService: EventService, val clubService: ClubServi
         @RequestParam(required = false) clubId: Long?,
         model: Model
     ): String {
-        val resolvedTypeId = typeId ?: type?.let {
-            eventService.getAllTypes().find { t -> t.name == it }?.id
+        val eventTypes = eventService.getAllTypes()
+        val resolvedTypeId = typeId ?: type?.let { typeName ->
+            eventTypes.find { t -> t.name == typeName }?.id
         }
+
         val clubs = clubService.getAll()
         val events = eventService.getFiltered(clubId, resolvedTypeId)
-        val eventTypes = eventService.getAllTypes()
+
         model.addAttribute("events", events)
         model.addAttribute("clubs", clubs)
         model.addAttribute("eventTypes", eventTypes)
