@@ -42,7 +42,13 @@ class JwtLoginSuccessHandler(
         }
         response.addCookie(clearRedirectCookie)
 
+        val finalRedirect = if (redirectUri.startsWith("http://") || redirectUri.startsWith("https://")) {
+            redirectUri
+        } else {
+            "${request.scheme}://${request.serverName}:${request.serverPort}${request.contextPath}$redirectUri"
+        }
+
         response.status = HttpServletResponse.SC_FOUND
-        response.setHeader("Location", redirectUri)
+        response.setHeader("Location", finalRedirect)
     }
 }
