@@ -3,6 +3,7 @@ package pt.unl.fct.iadi.novaevents.service
 import pt.unl.fct.iadi.novaevents.model.Event
 import pt.unl.fct.iadi.novaevents.model.EventType
 import org.springframework.stereotype.Service
+import pt.unl.fct.iadi.novaevents.model.User
 import pt.unl.fct.iadi.novaevents.repository.ClubRepository
 import pt.unl.fct.iadi.novaevents.repository.EventRepository
 import pt.unl.fct.iadi.novaevents.repository.EventTypeRepository
@@ -22,7 +23,7 @@ class EventService (val clubRepository: ClubRepository, val eventRepository: Eve
         return eventRepository.findByClub(club)
     }
     fun create(clubId: Long, name: String, date: LocalDate,
-               location: String?, typeId: Long, description: String?): Event {
+               location: String?, typeId: Long, description: String?, owner: User): Event {
         if (eventRepository.existsByNameIgnoreCase(name)) {
             throw IllegalArgumentException("An event with this name already exists")
         }
@@ -31,7 +32,7 @@ class EventService (val clubRepository: ClubRepository, val eventRepository: Eve
         val eventType = eventTypeRepository.findById(typeId)
             .orElseThrow { NoSuchElementException("EventType not found") }
         return eventRepository.save(Event(club = club, name = name, date = date,
-            location = location, type = eventType, description = description))
+            location = location, type = eventType, description = description, owner=owner))
     }
 
     fun update(id: Long, name: String, date: LocalDate,
